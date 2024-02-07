@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Permission, User, UserPermission } from './entities/entities';
+import { UserPermissionViewDto } from './entities/dtos';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ import { Permission, User, UserPermission } from './entities/entities';
 })
 export class AppComponent {
   title = 'firstProject';
+  searchText:string="";
   //User[], Permission[], UserPermission[] tipleri entity üzerinde tanımlandı.
   //Aşağıdaki girilmesi gereken parametreler (propertyler) tiplerde (Örneğin UserList için User[] tipinde) tanımlanmıştır.
   //Aşağıdaki veriler normalde bize API üzerinden gelecek. Biz Şu anda Dummy Data ile çalışıyoruz.
@@ -78,10 +80,35 @@ export class AppComponent {
 //   return this.userList.find(user=>user.id==id)
 // }
 //Full name döndürmek için tipi bozarak fonksiyonu değiştirdik.
-getUserById(id:number):any|undefined{
-  return this.userList.map(user=>{return {id:user.id,fullName:user.firstName+" "+user.lastName}}).find(user => user.id == id);
+getUserById(id:number):User|undefined{
+  return this.userList.find(user => user.id == id);
 }
 getPermissionsById(id:number):Permission|undefined{
   return this.permissionList.find(permision => permision.id == id);
+}
+getUserPermissionListBySearch():UserPermissionViewDto[]{
+  let userPermissionViewList:UserPermissionViewDto[]=
+  this.userPermissionList.map(userPermission=>{
+    let user=this.getUserById(userPermission.userId);
+    let permission=this.getPermissionsById(userPermission.permissionId);
+    let userserPermissionViewDto:UserPermissionViewDto={
+      id:userPermission.id,
+      userId:userPermission.userId,
+      permissionId:userPermission.permissionId,
+      userFullName:user?.firstName+ " "+user?.lastName,
+      permissionName:permission?.name??''
+    }
+    return userserPermissionViewDto
+  })
+  return userPermissionViewList.filter(
+    userPermission=>
+    this.searchText=="" ||
+    (
+      userPermission.permissionId.toString()==this.searchText ||
+      userPermission.userId.toString()==this.searchText||
+      userPermission.userFullName.toLowerCase().includes(this.searchText.toLowerCase()) ||
+      userPermission.permissionName.toLowerCase().includes(this.searchText.toLowerCase())
+    )
+  )
 }
 }

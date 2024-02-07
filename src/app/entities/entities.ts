@@ -16,7 +16,7 @@ export interface UserPermission{
   permissionId: number;
 }
 
-export interface USerCar{
+export interface UserCar{
   id:number;
   userId:number;
   brand:string;
